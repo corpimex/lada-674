@@ -1,0 +1,29 @@
+name: Publicar en NPM
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org/'
+          always-auth: true
+      - name: Configurar autenticación en NPM
+        run: echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}' > ~/.npmrc
+      - name: Login a NPM
+        run: npm login --registry=https://registry.npmjs.org/ || true
+      - name: Instalar dependencias
+        run: npm install
+      - name: Publicar en NPM
+        run: npm publish --access public
